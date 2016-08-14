@@ -4,7 +4,7 @@ var team1 = 'Team 1'
 var team2 = 'Team 2'
 var statusTypes = ['Ban', 'Ban', 'Pick', 'Pick']
 var pickedMaps = []
-var randomNumber = Math.floor(Math.random() * 3) // Used to determine map choice 
+var randomNumber = Math.floor(Math.random() * 3) // Used to determine map choice
 var mapElement = find('.map-name')
 
 infoLogic()
