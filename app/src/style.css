@@ -5,13 +5,13 @@
 
 html,
 body {
-  margin: 0;g
+  margin: 0;
   padding: 0;
 }
 
 body {
   margin-top: 10px;
-  background-color: black;
+  background-color: #000;
 }
 
 .ui.spooky.button {
@@ -29,57 +29,6 @@ body {
   text-decoration: none;
   font-weight: bold;
   transition: all .1s;
-}
-
-.map-panel {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 8px;
-  width: 300px;
-  height: 220px;
-  font-weight: 500;
-  text-align: center;
-  font-size: 30px;
-  text-shadow: 1px 2px 1px #000;
-  transition: all .1s;
-  border-width: 2px;
-  border-style: solid;
-  display: block;
-}
-
-.map-panel:hover {
-  border-width: 5px;
-}
-
-.map-panel.default {
-  border-color: #fff;
-  color: #fff;
-}
-
-.map-panel.team-1 {
-  border-color: #e85151;
-  color: #e85151;
-  padding-top: 80px;
-}
-
-.map-panel.team-2 {
-  border-color: #62b7f7;
-  color: #62b7f7;
-  padding-top: 80px;
-}
-
-.map-name {
-  top: 10px;
-  left: 0;
-  right: 0;
-  position: absolute;
-  color: #fff;
-}
-
-.status {
-  font-weight: 700;
 }
 
 .next-turn {
