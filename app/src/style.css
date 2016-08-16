@@ -5,22 +5,13 @@
 
 html,
 body {
-  margin: 0;
+  margin: 0;g
   padding: 0;
 }
 
 body {
   margin-top: 10px;
   background-color: black;
-  /*
-  background-color: transparent;
-  background: url(http://i.imgur.com/Pll4Ej4.jpg) no-repeat center center fixed;
-  background-size: cover;
-  */
-}
-
-.ui.grid {
-  padding-left: 100px;
 }
 
 .ui.spooky.button {
