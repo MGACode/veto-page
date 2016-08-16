@@ -1,0 +1,10 @@
+{
+  "extends": "aria",
+  "globals": {
+    "$": true
+  },
+  "rules": {
+    "no-var": 0,
+    "prefer-template": 0
+  }
+}
