@@ -1,9 +1,17 @@
 'use strict'
 
-const path = require('path')
-const express = require('express')
+const app = require('express')()
+const server = require('http').Server(app)
+const io = require('socket.io')(server)
 
-const app = express()
-app.use(express.static(path.join(__dirname, 'public')))
+server.listen('3000')
 
-app.listen('3000')
+app.get('/', function(req, res) {
+  res.json({ hello: 'world' })
+})
+
+io.on('connection', function(socket) {
+  socket.on('data', function(data) {
+    socket.broadcast.emit('data', data)
+  })
+})

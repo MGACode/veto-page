@@ -11,7 +11,8 @@
     "mobx": "^2.4.3",
     "mobx-react": "^3.5.5",
     "react": "^15.3.0",
-    "react-dom": "^15.3.0"
+    "react-dom": "^15.3.0",
+    "socket.io-client": "^1.4.8"
   },
   "devDependencies": {
     "babel-loader": "^6.2.5",

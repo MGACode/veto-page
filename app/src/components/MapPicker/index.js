@@ -2,11 +2,14 @@
 
 import React, { Component } from 'react'
 import { partial } from 'lodash'
+import io from 'socket.io-client'
 import { remove } from 'lodash/fp'
-import { action, autorun, computed, observable } from 'mobx'
 import { observer } from 'mobx-react'
+import { action, autorun, computed, observable, toJS } from 'mobx'
 import c from './styles'
 
+// Websocket connection
+const socket = io('localhost:3000')
 const COUNTER_MAX = 5
 const statusTypes = ['Ban', 'Ban', 'Pick', 'Pick']
 const mapPool = [
@@ -19,57 +22,55 @@ const mapPool = [
   { name: 'Darkforest', image: 'http://i.imgur.com/NBZyfBa.png', team: '', type: '' }
 ]
 
+const state = {
+  counter: 0,
+  maps: mapPool,
+  team1: 'Team 1',
+  team2: 'Team 2',
+  remaining: [...Array(mapPool.length).keys()]
+}
+
 @observer
 export default class MapPicker extends Component {
   constructor(props) {
     super(props)
-    autorun(() => {
-      console.log(this.maps)
-      console.log(this.team1)
-      console.log(this.team2)
-      console.log(this.counter)
-      console.log(this.remaining)
-    })
+    autorun(() => socket.emit('data', toJS(this.status)))
   }
 
-  @observable counter = 0;
-  @observable maps = mapPool;
-  @observable team1 = 'Team 1';
-  @observable team2 = 'Team 2';
-  @observable remaining = [...Array(mapPool.length).keys()];
+  @observable status = state
 
   @action update = (team, event) => {
-    this[team] = event.target.value
+    this.status[team] = event.target.value
   }
 
   @action select = (index) => {
-    const map = this.maps[index]
+    const map = this.status.maps[index]
 
     if (map.team) return
-    if (this.counter > COUNTER_MAX) return
+    if (this.status.counter > COUNTER_MAX) return
 
-    const subset = remove((x) => x === index)(this.remaining)
+    const subset = remove((x) => x === index)(this.status.remaining)
 
-    this.maps[index].type = statusTypes[this.counter % 4]
-    this.maps[index].team = this.counter % 2 === 0
-      ? computed(() => this.team1)
-      : computed(() => this.team2)
+    this.status.maps[index].type = statusTypes[this.status.counter % 4]
+    this.status.maps[index].team = this.status.counter % 2 === 0
+      ? computed(() => this.status.team1)
+      : computed(() => this.status.team2)
 
     if (subset.length === 1) {
       const idx = subset[0]
-      this.maps[idx].type = 'Random'
-      this.maps[idx].team = computed(() => 'Random')
+      this.status.maps[idx].type = 'Random'
+      this.status.maps[idx].team = computed(() => 'Random')
     }
 
-    this.remaining = subset
-    this.counter = this.counter + 1
+    this.status.remaining = subset
+    this.status.counter = this.status.counter + 1
   }
 
   teamClass = (team) => {
     switch (team) {
     case '': return 'default'
-    case this.team1: return 'team-1'
-    case this.team2: return 'team-2'
+    case this.status.team1: return 'team-1'
+    case this.status.team2: return 'team-2'
     default: return 'default'
     }
   }
@@ -81,21 +82,21 @@ export default class MapPicker extends Component {
           <div className="ui inverted horizontal divider">Enter Team Names</div>
           <div className="ui column input">
             <input
-              value={this.team1}
+              value={this.status.team1}
               onChange={action('Change "Team 1" name', partial(this.update, 'team1'))}
             />
           </div>
           <div className="column"></div>
           <div className="ui column input">
             <input
-              value={this.team2}
+              value={this.status.team2}
               onChange={action('Change "Team 2" name', partial(this.update, 'team2'))}
             />
           </div>
         </div>
         <div className="ui inverted horizontal divider">Pick Maps</div>
         <div className="ui centered three column grid">
-          {this.maps.map((map, index) =>
+          {this.status.maps.map((map, index) =>
             <div className="column" key={map.name} onClick={action('select', partial(this.select, index))}>
               <div
                 style={{ backgroundImage: `url(${map.image})` }}
