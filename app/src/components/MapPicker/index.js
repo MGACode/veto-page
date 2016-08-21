@@ -5,7 +5,7 @@ import io from 'socket.io-client'
 import { remove } from 'lodash/fp'
 import { observer } from 'mobx-react'
 import React, { Component } from 'react'
-import { action, autorun, computed, observable } from 'mobx'
+import { action, computed, observable, spy } from 'mobx'
 import styles from './styles'
 
 // Websocket connection
@@ -24,27 +24,26 @@ const mapPool = [
   { name: 'Darkforest', image: 'http://i.imgur.com/NBZyfBa.png', team: 0, type: '' }
 ]
 
+
 @observer
 export default class MapPicker extends Component {
   constructor(props) {
     super(props)
 
-    autorun(() => {
-      if (this.changed) {
-        this.changed = false
-        return
+    spy((change) => {
+      if (change.type === 'action' && (change.name === 'update' || change.name === 'select')) {
+        setTimeout(() =>
+          socket.emit('data', {
+            maps: this.maps,
+            team1: this.team1,
+            team2: this.team2,
+            counter: this.counter,
+            remaining: this.remaining
+          }), 0)
       }
-      socket.emit('data', {
-        maps: this.maps,
-        team1: this.team1,
-        team2: this.team2,
-        counter: this.counter,
-        remaining: this.remaining
-      })
     })
 
     socket.on('data', action('Receive changes', (data) => {
-      this.changed = true
       this.maps = data.maps
       this.team1 = data.team1
       this.team2 = data.team2
@@ -53,7 +52,6 @@ export default class MapPicker extends Component {
     }))
   }
 
-  changed = true;
   @observable counter = 0;
   @observable maps = mapPool;
   @observable team1 = 'Team 1';
@@ -106,25 +104,22 @@ export default class MapPicker extends Component {
   }
 
   render() {
-    const updateTeam1 = action('Change "Team 1" name', partial(this.update, 'team1'))
-    const updateTeam2 = action('Change "Team 2" name', partial(this.update, 'team2'))
-
     return (
       <div>
         <div className="ui three column centered grid">
           <div className="ui inverted horizontal divider">Enter Team Names</div>
           <div className="ui column input">
-            <input value={this.team1} onChange={updateTeam1} />
+            <input value={this.team1} onChange={partial(this.update, 'team1')} />
           </div>
           <div className="column"></div>
           <div className="ui column input">
-            <input value={this.team2} onChange={updateTeam2} />
+            <input value={this.team2} onChange={partial(this.update, 'team2')} />
           </div>
         </div>
         <div className="ui inverted horizontal divider">Pick Maps</div>
         <div className="ui centered three column grid">
           {this.maps.map((map, index) =>
-            <div className="column" key={map.name} onClick={action('select', partial(this.select, index))}>
+            <div className="column" key={map.name} onClick={partial(this.select, index)}>
               <div
                 style={{ backgroundImage: `url(${map.image})` }}
                 className={`${styles.mapPanel} ${this.teamClass(map.team)}`}
