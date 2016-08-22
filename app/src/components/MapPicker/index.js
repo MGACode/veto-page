@@ -24,32 +24,29 @@ const mapPool = [
   { name: 'Darkforest', image: 'http://i.imgur.com/NBZyfBa.png', team: 0, type: '' }
 ]
 
-
 @observer
 export default class MapPicker extends Component {
   constructor(props) {
     super(props)
+    socket.on('data', action('Receive changes', (data) => Object.assign(this, data)))
+  }
 
-    spy((change) => {
+  componentWillMount() {
+    this.killSpy = spy((change) => {
       if (change.type === 'action' && (change.name === 'update' || change.name === 'select')) {
-        setTimeout(() =>
-          socket.emit('data', {
-            maps: this.maps,
-            team1: this.team1,
-            team2: this.team2,
-            counter: this.counter,
-            remaining: this.remaining
-          }), 0)
+        setTimeout(() => socket.emit('data', {
+          maps: this.maps,
+          team1: this.team1,
+          team2: this.team2,
+          counter: this.counter,
+          remaining: this.remaining
+        }), 0)
       }
     })
+  }
 
-    socket.on('data', action('Receive changes', (data) => {
-      this.maps = data.maps
-      this.team1 = data.team1
-      this.team2 = data.team2
-      this.counter = data.counter
-      this.remaining = data.remaining
-    }))
+  componentWillUnmount() {
+    this.killSpy()
   }
 
   @observable counter = 0;
@@ -117,21 +114,23 @@ export default class MapPicker extends Component {
           </div>
         </div>
         <div className="ui inverted horizontal divider">Pick Maps</div>
-        <div className="ui centered three column grid">
-          {this.maps.map((map, index) =>
-            <div className="column" key={map.name} onClick={partial(this.select, index)}>
-              <div
-                style={{ backgroundImage: `url(${map.image})` }}
-                className={`${styles.mapPanel} ${this.teamClass(map.team)}`}
-              >
-                <div className={styles.mapName}>{map.name}</div>
-                <div>{this.team(map.team).get()}</div>
-                <div className={`${styles[map.type.toLowerCase()]} ${styles.status}`}>{map.type}</div>
-              </div>
-            </div>)
-          }
-        </div>
+        <div className="ui centered three column grid">{this.maps.map(MapElem.bind(this))}</div>
       </div>
     )
   }
+}
+
+function MapElem(map, index) {
+  const currentTeam = this.team(map.team).get()
+  const background = { backgroundImage: `url(${map.image})` }
+
+  return (
+    <div className="column" key={map.name} onClick={partial(this.select, index)}>
+      <div style={background} className={`${styles.mapPanel} ${this.teamClass(map.team)}`}>
+        <div className={styles.mapName}>{map.name}</div>
+        <div>{currentTeam}</div>
+        <div className={`${styles[map.type.toLowerCase()]} ${styles.status}`}>{map.type}</div>
+      </div>
+    </div>
+  )
 }

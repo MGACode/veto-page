@@ -7,7 +7,7 @@ const styles = {
   mapPanel: {
     alignItems: 'center',
     borderStyle: 'solid',
-    borderWidth: 2,
+    borderWidth: 5,
     display: 'flex',
     flexDirection: 'column',
     fontSize: 30,
@@ -19,22 +19,26 @@ const styles = {
     textShadow: '1px 2px 1px #000',
     transition: 'all .1s',
 
-    '&:hover': {
-      borderWidth: '5px'
-    },
     '&.default': {
       borderColor: '#fff',
-      color: '#fff'
+      color: '#fff',
+      borderWidth: 2,
+
+      '&:hover': {
+        borderWidth: 5
+      }
     },
     '&.team-1': {
       borderColor: '#e85151',
       color: '#e85151',
-      borderWidth: 5
     },
     '&.team-2': {
       borderColor: '#62b7f7',
       color: '#62b7f7',
-      borderWidth: 5
+    },
+    '&.random': {
+      borderColor: 'rgb(165, 94, 233)',
+      color: 'rgb(165, 94, 233)',
     }
   },
   ban: {
