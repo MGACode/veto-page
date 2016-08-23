@@ -27,11 +27,11 @@ export default class Home extends Component {
   lobbyReq: IFromPromise
 
   componentWillMount() {
-    this.lobbyReq = fromPromise(fetch('http://localhost:3000/api/lobbies').then((res) => res.json()))
+    this.lobbyReq = fromPromise(fetch('http://127.0.0.1:3000/api/lobbies').then((res) => res.json()))
   }
 
   createLobby = () =>
-    fetch('http://localhost:3000/api/lobbies', {
+    fetch('http://127.0.0.1:3000/api/lobbies', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(chivalry)
