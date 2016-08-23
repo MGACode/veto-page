@@ -1,46 +1,55 @@
-const r = require('redis')
-const e = require('express')
-const redis = r.createClient()
-const Promise = require('bluebird')
+const lobbyAPI = require('express').Router()
+const sub = require('../redis').createClient()
+const redis = require('../redis').createClient()
 
-const api = e.Router()
-Promise.promisifyAll(r.Multi.prototype)
-Promise.promisifyAll(r.RedisClient.prototype)
+redis.sinterAsync('lobbies')
+  .then(function(lobbies) {
+    for (const lobby of lobbies) {
+      sub.subscribe(`lobby:channel:${lobby}`)
+    }
+  })
 
-api.get('/lobbies', function(req, res) {
+lobbyAPI.get('/lobbies', function(req, res) {
   redis.sinterAsync('lobbies')
     .then((lobbies) => res.json({ lobbies }))
     .catch((err) => res.status(500).json({ err: err.message ? err.message : err }))
 })
 
-api.post('/lobbies', function(req, res) {
+lobbyAPI.post('/lobbies', function(req, res) {
+  const body = JSON.stringify(req.body)
+
   redis.incrAsync('id:lobbies')
     .then((id) =>
       redis.multi()
-        .set(`lobby:${id}`, '{}')
         .sadd('lobbies', id)
+        .set(`lobby:${id}`, body)
         .execAsync()
-        .then(() => res.json({ id })))
+        .then(function() {
+          res.json({ id })
+          sub.subscribe(`lobby:channel:${id}`)
+        })
+      )
     .catch((err) => res.status(500).json({ err: err.message ? err.message : err }))
 })
 
-api.get('/lobbies/:id', function(req, res) {
+lobbyAPI.get('/lobbies/:id', function(req, res) {
   const id = req.params.id
   getLobby(id)
-    .then((lobby) => res.json({ lobby }))
+    .then((lobby) => res.json({ lobby: JSON.parse(lobby) }))
     .catch((err) => res.status(500).json({ err: err.message ? err.message : err }))
 })
 
-api.put('/lobbies/:id', function(req, res) {
+lobbyAPI.put('/lobbies/:id', function(req, res) {
   const id = req.params.id
+  const body = JSON.stringify(req.body)
 
   getLobby(id)
-    .then(() => redis.setAsync(`lobby:${id}`, JSON.stringify(req.body)))
-    .then((msg) => res.json({ msg }))
+    .then(() => redis.multi().set(`lobby:${id}`, body).publish(`lobby:channel:${id}`, body).execAsync())
+    .then(() => res.json({ msg: 'UPDATED' }))
     .catch((err) => res.status(500).json({ err: err.message ? err.message : err }))
 })
 
-api.delete('/lobbies/:id', function(req, res) {
+lobbyAPI.delete('/lobbies/:id', function(req, res) {
   const id = req.params.id
 
   getLobby(id)
@@ -54,4 +63,4 @@ function getLobby(id) {
     .then((lobby) => lobby ? lobby : Promise.reject('Lobby does not exist'))
 }
 
-module.exports = api
+module.exports = { lobbyAPI, sub }
