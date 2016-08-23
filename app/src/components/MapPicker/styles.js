@@ -13,11 +13,13 @@ const styles = {
     fontSize: 30,
     fontWeight: 500,
     height: 220,
+    maxWidth: 300,
     justifyContent: 'center',
     position: 'relative',
     textAlign: 'center',
     textShadow: '1px 2px 1px #000',
     transition: 'all .1s',
+    margin: 'auto',
 
     '&.default': {
       borderColor: '#fff',

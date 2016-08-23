@@ -1,0 +1,8 @@
+// @flow
+/* eslint no-undef: 0 */
+
+declare interface IFromPromise {
+  promise: Promise<*>,
+  value(): any,
+  state(): 'pending' | 'resolved' | 'rejected'
+}

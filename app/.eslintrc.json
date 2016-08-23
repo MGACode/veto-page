@@ -1,3 +1,8 @@
 {
-  "extends": ["aria", "aria-react"]
+  "extends": ["aria", "aria-react"],
+  "plugins": ["flowtype"],
+  "rules": {
+    "flowtype/use-flow-type": 1,
+    "flowtype/define-flow-type": 1
+  }
 }
