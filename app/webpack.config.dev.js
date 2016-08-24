@@ -1,4 +1,5 @@
 const path = require('path')
+const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const Dashboard = require('webpack-dashboard')
 const DashboardPlugin = require('webpack-dashboard/plugin')
@@ -7,7 +8,7 @@ const dashboard = new Dashboard()
 module.exports = {
   devtool: 'cheap-module-source-map',
   entry: [
-    'webpack-dev-server/client?http://127.0.0.1:8080',
+    'webpack-dev-server/client?http://localhost:8080',
     './src/index'
   ],
   output: {
@@ -16,10 +17,9 @@ module.exports = {
     publicPath: '/'
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: './src/index.html'
-    }),
-    new DashboardPlugin(dashboard.setData)
+    new DashboardPlugin(dashboard.setData),
+    new HtmlWebpackPlugin({ template: './src/index.html' }),
+    new webpack.DefinePlugin({ API_BASE_URL: JSON.stringify('http://localhost:3000/api') })
   ],
   module: {
     loaders: [{

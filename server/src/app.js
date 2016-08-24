@@ -6,8 +6,8 @@ const socketIO = require('socket.io')(server)
 const { lobbyAPI, sub } = require('./api/lobbies')
 const presetAPI = require('./api/presets')
 
-app.use(cors())
 app.use(bodyParser.json())
+app.use(cors({ origin: ['http://localhost:8080', 'http://54.173.32.162:8080'] }))
 
 socketIO.on('connection', function(socket) {
   socket.on('join room', (room) => socket.join(room))
@@ -21,4 +21,4 @@ sub.on('message', function(channel, message) {
 
 app.use('/api', lobbyAPI)
 app.use('/api', presetAPI)
-server.listen(process.env.PORT || 3000)
+server.listen(3000)

@@ -14,16 +14,16 @@ export default class MapPicker extends Component {
   socket: Object;
   killSpy: Function;
   lobbyId: number = this.props.routeParams.id;
-  store: MapStore = new MapStore(`http://127.0.0.1:3000/api/lobbies/${this.lobbyId}`);
+  store: MapStore = new MapStore(`${API_BASE_URL}/lobbies/${this.lobbyId}`);
 
   componentWillMount() {
-    this.socket = io('127.0.0.1:3000')
+    this.socket = io(API_BASE_URL.split('/api')[0])
     this.socket.emit('join room', this.lobbyId)
     this.socket.on('data', (data) => Object.assign(this.store, data))
 
     this.killSpy = spy((change) => {
       if (change.type === 'action' && (change.name === 'update' || change.name === 'select')) {
-        setTimeout(() => fetch(`http://127.0.0.1:3000/api/lobbies/${this.lobbyId}`, {
+        setTimeout(() => fetch(`${API_BASE_URL}/lobbies/${this.lobbyId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(this.store.contents())

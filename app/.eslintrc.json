@@ -1,6 +1,9 @@
 {
   "extends": ["aria", "aria-react"],
   "plugins": ["flowtype"],
+  "globals": {
+    "API_BASE_URL": true
+  },
   "rules": {
     "flowtype/use-flow-type": 1,
     "flowtype/define-flow-type": 1

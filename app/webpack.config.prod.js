@@ -12,11 +12,10 @@ module.exports = {
   plugins: [
     new webpack.optimize.UglifyJsPlugin(),
     new webpack.optimize.OccurenceOrderPlugin(),
+    new HtmlWebpackPlugin({ template: './src/index.html' }),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production')
-    }),
-    new HtmlWebpackPlugin({
-      template: './src/index.html'
+      'process.env.NODE_ENV': JSON.stringify('production'),
+      API_BASE_URL: JSON.stringify('http://54.173.32.162:3000/api')
     })
   ],
   module: {
