@@ -37,6 +37,11 @@ export default class MapPicker extends Component {
     this.socket.disconnect()
   }
 
+  deleteLobby = () => {
+    fetch(`${API_BASE_URL}/lobbies/${this.lobbyId}`, { method: 'DELETE' })
+      .then(() => this.props.history.push('/'))
+  }
+
   render() {
     const { team1, team2, update } = this.store
 
@@ -48,7 +53,11 @@ export default class MapPicker extends Component {
           <div className="ui column input">
             <input value={team1} onChange={partial(update, 'team1')} />
           </div>
-          <div className="column"></div>
+          <div className="column">
+            <button onClick={this.deleteLobby} className="ui inverted red button">
+              Delete Lobby
+            </button>
+          </div>
           <div className="ui column input">
             <input value={team2} onChange={partial(update, 'team2')} />
           </div>
