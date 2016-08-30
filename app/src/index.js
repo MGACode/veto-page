@@ -2,10 +2,15 @@
 
 import 'whatwg-fetch'
 import React from 'react'
+import { useStrict } from 'mobx'
 import ReactDOM from 'react-dom'
+import DevTool from 'mobx-react-devtools'
 import { Router, Route, hashHistory } from 'react-router'
+
 import Home from './components/Home'
 import MapPicker from './components/MapPicker'
+
+useStrict(true)
 
 function App() {
   return (
@@ -17,4 +22,9 @@ function App() {
 }
 
 // Render application
-ReactDOM.render(<App />, document.getElementById('root'))
+ReactDOM.render(
+  <div>
+    <App />
+    <DevTool />
+  </div>,
+document.getElementById('root'))

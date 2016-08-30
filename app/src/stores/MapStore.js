@@ -13,13 +13,13 @@ export default class MapStore {
   constructor(url: string) {
     this.presetReq = fromPromise(fetch(url).then((res) => res.json()))
     this.presetReq.promise
-      .then(({ lobby } : { lobby: MapStore }) => {
+      .then(action('Init store', ({ lobby } : { lobby: MapStore }) => {
         this.maps = lobby.maps
         this.team1 = lobby.team1
         this.team2 = lobby.team2
         this.counter = lobby.counter
         this.remaining = lobby.remaining
-      })
+      }))
   }
 
   counter = 0;

@@ -1,6 +1,6 @@
 // @flow
 
-import { spy } from 'mobx'
+import { action, spy } from 'mobx'
 import { partial } from 'lodash'
 import io from 'socket.io-client'
 import React, { Component } from 'react'
@@ -12,6 +12,7 @@ import MapStore from '../../stores/MapStore'
 @observer
 export default class MapPicker extends Component {
   socket: Object;
+  changeId: number;
   killSpy: Function;
   lobbyId: number = this.props.routeParams.id;
   store: MapStore = new MapStore(`${API_BASE_URL}/lobbies/${this.lobbyId}`);
@@ -19,14 +20,17 @@ export default class MapPicker extends Component {
   componentWillMount() {
     this.socket = io(API_BASE_URL.split('/api')[0])
     this.socket.emit('join room', this.lobbyId)
-    this.socket.on('data', (data) => Object.assign(this.store, data))
+    this.socket.on('data', action('Receive change',
+      (data) => data.changeId !== this.changeId && Object.assign(this.store, data))
+    )
 
     this.killSpy = spy((change) => {
       if (change.type === 'action' && (change.name === 'update' || change.name === 'select')) {
+        this.changeId = Math.random()
         setTimeout(() => fetch(`${API_BASE_URL}/lobbies/${this.lobbyId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(this.store.contents())
+          body: JSON.stringify(Object.assign({}, this.store.contents(), { changeId: this.changeId }))
         }), 0)
       }
     })

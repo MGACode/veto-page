@@ -7,12 +7,12 @@ export function fromPromise(promise: Promise<*>): IFromPromise {
   const state = observable('pending')
 
   promise
-    .then(action('resolve-promise', function(res: any) {
+    .then(action('Resolve promise', function(res: any) {
       value.set(res)
       state.set('resolved')
       return res
     }))
-    .catch(action('reject-promise', function(err: any) {
+    .catch(action('Reject promise', function(err: any) {
       value.set(err)
       state.set('rejected')
       return Promise.reject(err)
