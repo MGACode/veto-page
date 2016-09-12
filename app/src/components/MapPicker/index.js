@@ -1,8 +1,8 @@
 // @flow
 
-import { action, spy } from 'mobx'
 import { partial } from 'lodash'
 import io from 'socket.io-client'
+import { action, spy } from 'mobx'
 import React, { Component } from 'react'
 import { inject, observer, Provider } from 'mobx-react'
 
@@ -12,25 +12,24 @@ import MapStore from '../../stores/MapStore'
 @observer
 export default class MapPicker extends Component {
   socket: Object;
-  changeId: number;
   killSpy: Function;
+  sessionId: number = Math.random();
   lobbyId: number = this.props.routeParams.id;
   store: MapStore = new MapStore(`${API_BASE_URL}/lobbies/${this.lobbyId}`);
 
   componentWillMount() {
     this.socket = io(API_BASE_URL.split('/api')[0])
     this.socket.emit('join room', this.lobbyId)
-    this.socket.on('data', action('Receive change',
-      (data) => data.changeId !== this.changeId && Object.assign(this.store, data))
+    this.socket.on('data', action('receive change',
+      (data) => data.sessionId !== this.sessionId && Object.assign(this.store, data))
     )
 
     this.killSpy = spy((change) => {
-      if (change.type === 'action' && (change.name === 'update' || change.name === 'select')) {
-        this.changeId = Math.random()
+      if (change.type === 'action' && ['update', 'select', 'undo', 'redo'].indexOf(change.name) > -1) {
         setTimeout(() => fetch(`${API_BASE_URL}/lobbies/${this.lobbyId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(Object.assign({}, this.store.contents(), { changeId: this.changeId }))
+          body: JSON.stringify(Object.assign({}, this.store.contents(), { sessionId: this.sessionId }))
         }), 0)
       }
     })
@@ -47,7 +46,7 @@ export default class MapPicker extends Component {
   }
 
   render() {
-    const { team1, team2, update } = this.store
+    const { team1, team2, update, undoSelection, redoSelection } = this.store
 
     return (
       <div>
@@ -60,6 +59,12 @@ export default class MapPicker extends Component {
           <div className="column">
             <button onClick={this.deleteLobby} className="ui inverted red button">
               Delete Lobby
+            </button>
+            <button onClick={undoSelection} className="ui inverted blue button">
+              Undo Pick
+            </button>
+            <button onClick={redoSelection} className="ui inverted green button">
+              Redo Pick
             </button>
           </div>
           <div className="ui column input">
@@ -77,17 +82,17 @@ export default class MapPicker extends Component {
 
 const Maps = inject('store')(observer(function Maps({ store } : { store: MapStore }) {
   switch (store.presetReq.state()) {
-  case 'pending': return <div className="ui inverted header">Loading Maps...</div>
-  case 'resolved':
-    return (
-      <div className="ui centered three column grid">
-        {store.maps.map((map, index) =>
-          <div key={map.name} className="column">
-            <MapElem map={map} index={index} />
-          </div>)}
-      </div>
-    )
-  default: return <div className="ui inverted header">Something went wrong!</div>
+    case 'pending': return <div className="ui inverted header">Loading Maps...</div>
+    case 'resolved':
+      return (
+        <div className="ui centered three column grid">
+          {store.maps.map((map, index) =>
+            <div key={map.name} className="column">
+              <MapElem map={map} index={index} />
+            </div>)}
+        </div>
+      )
+    default: return <div className="ui inverted header">Something went wrong!</div>
   }
 }))
 
@@ -110,10 +115,10 @@ const MapElem = inject('store')(observer(function MapElem({ map, index, store })
 
 function teamClass(team) {
   switch (team) {
-  case 0: return 'default'
-  case 1: return 'team-1'
-  case 2: return 'team-2'
-  case 3: return 'random'
-  default: return 'default'
+    case 0: return 'default'
+    case 1: return 'team-1'
+    case 2: return 'team-2'
+    case 3: return 'random'
+    default: return 'default'
   }
 }

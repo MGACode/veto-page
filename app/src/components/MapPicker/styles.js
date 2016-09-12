@@ -25,10 +25,9 @@ const styles = {
       borderColor: '#fff',
       color: '#fff',
       borderWidth: 2,
-
-      '&:hover': {
-        borderWidth: 5
-      }
+    },
+    '&.default:hover': {
+      borderWidth: 5
     },
     '&.team-1': {
       borderColor: '#e85151',

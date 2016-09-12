@@ -39,7 +39,6 @@ export default class Home extends Component {
     .then((res) => res.json())
     .then(({ id } : { id: number }) => this.props.history.push(`/lobby/${id}`))
 
-
   render() {
     return (
       <div className="ui one column centered padded grid">
@@ -58,22 +57,22 @@ export default class Home extends Component {
 
 const Lobbies = observer(function Lobbies({ lobbyReq }: { lobbyReq: IFromPromise }) {
   switch (lobbyReq.state()) {
-  case 'pending':
-    return <div className="ui inverted header">Loading...</div>
-  case 'resolved':
-    const { lobbies } = lobbyReq.value()
-    return (
-      <div>
-        <div className="ui inverted header">Current Lobbies</div>
-        <div className="ui three column centered grid">
-          {lobbies.length > 0
-            ? lobbies.map((x) => <Lobby key={x} number={x} />)
-            : <div className="ui inverted header">No existing lobbies!</div>}
+    case 'pending':
+      return <div className="ui inverted header">Loading...</div>
+    case 'resolved':
+      const { lobbies } = lobbyReq.value()
+      return (
+        <div>
+          <div className="ui inverted header">Current Lobbies</div>
+          <div className="ui three column centered grid">
+            {lobbies.length > 0
+              ? lobbies.map((x) => <Lobby key={x} number={x} />)
+              : <div className="ui inverted header">No existing lobbies!</div>}
+          </div>
         </div>
-      </div>
-    )
-  default:
-    return <div className="ui inverted header">Something went wrong!</div>
+      )
+    default:
+      return <div className="ui inverted header">Something went wrong!</div>
   }
 })
 

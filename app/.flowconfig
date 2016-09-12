@@ -1,11 +1,8 @@
 [ignore]
-.*/node_modules/json5
-.*/node_modules/config-chain
 .*/node_modules/fbjs
-.*/node_modules/findup
 
 [libs]
-./src/decls.js.flow
+./src/types.js
 
 [options]
 esproposal.decorators=ignore

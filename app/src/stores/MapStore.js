@@ -1,7 +1,9 @@
 // @flow
 
 import { remove } from 'lodash/fp'
+import { undo, redo } from 'mobx-store'
 import { action, computed, observable } from 'mobx'
+
 import { fromPromise } from '../utils'
 
 const COUNTER_MAX = 5
@@ -13,7 +15,7 @@ export default class MapStore {
   constructor(url: string) {
     this.presetReq = fromPromise(fetch(url).then((res) => res.json()))
     this.presetReq.promise
-      .then(action('Init store', ({ lobby } : { lobby: MapStore }) => {
+      .then(action('init store', ({ lobby } : { lobby: MapStore }) => {
         this.maps = lobby.maps
         this.team1 = lobby.team1
         this.team2 = lobby.team2
@@ -22,8 +24,8 @@ export default class MapStore {
       }))
   }
 
-  counter = 0;
-  remaining = [];
+  @observable counter = 0;
+  @observable remaining = [];
   @observable maps: any = [];
   @observable team1: any = 'Team 1';
   @observable team2: any = 'Team 2';
@@ -64,11 +66,19 @@ export default class MapStore {
 
   team = (team: number) => computed(() => {
     switch (team) {
-    case 0: return ''
-    case 1: return this.team1
-    case 2: return this.team2
-    case 3: return 'Random'
-    default: return 'default'
+      case 0: return ''
+      case 1: return this.team1
+      case 2: return this.team2
+      case 3: return 'Random'
+      default: return 'default'
     }
   })
+
+  undoSelection() {
+    undo('select')
+  }
+
+  redoSelection() {
+    redo('select')
+  }
 }
